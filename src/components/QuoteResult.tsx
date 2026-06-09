@@ -1,21 +1,11 @@
 import { useQuoteStore } from '../store/quoteStore';
 
 export default function QuoteResult() {
-  const quote = useQuoteStore(
-    (state) => state.quote
-  );
+  const quote = useQuoteStore((state) => state.quote);
+  const loading = useQuoteStore((state) => state.loading);
 
-  const loading = useQuoteStore(
-    (state) => state.loading
-  );
-
-  if (loading) {
-    return <p>Calculando cotação...</p>;
-  }
-
-  if (!quote) {
-    return null;
-  }
+  if (loading) return <p>Calculando...</p>;
+  if (!quote) return null;
 
   return (
     <div
