@@ -1,276 +1,232 @@
 import { useState } from 'react';
-import { api } from '../services/api';
 import { useQuoteStore } from '../store/quoteStore';
+
+type Addon = 'bagagem' | 'esportes_aventura';
 
 interface Traveler {
   nome: string;
   data_nascimento: string;
-  adicionais: string[];
+  adicionais: Addon[];
 }
 
 export default function TripForm() {
-  const setQuote = useQuoteStore(
-    (state) => state.setQuote
-  );
-
-  const setLoading = useQuoteStore(
-    (state) => state.setLoading
-  );
+  const fetchQuote = useQuoteStore((s) => s.fetchQuote);
+  const loading = useQuoteStore((s) => s.loading);
+  const errors = useQuoteStore((s) => s.errors);
 
   const [destino, setDestino] =
-    useState('EUROPA');
+    useState<'nacional' | 'americas' | 'europa'>('europa');
 
-  const [dataInicio, setDataInicio] =
-    useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
-  const [dataFim, setDataFim] =
-    useState('');
+  const [viajantes, setViajantes] = useState<Traveler[]>([
+    {
+      nome: '',
+      data_nascimento: '',
+      adicionais: [],
+    },
+  ]);
 
-  const [viajantes, setViajantes] =
-    useState<Traveler[]>([
-      {
-        nome: '',
-        data_nascimento: '',
-        adicionais: [],
-      },
-    ]);
-
-  const addTraveler = () => {
-    setViajantes([
-      ...viajantes,
-      {
-        nome: '',
-        data_nascimento: '',
-        adicionais: [],
-      },
-    ]);
-  };
-
-  const removeTraveler = (index: number) => {
-    setViajantes(
-      viajantes.filter((_, i) => i !== index)
-    );
-  };
-
-  const updateTraveler = (
-    index: number,
-    field: keyof Traveler,
-    value: any
-  ) => {
-    const updated = [...viajantes];
-
-    updated[index] = {
-      ...updated[index],
-      [field]: value,
-    };
-
-    setViajantes(updated);
-  };
-
-  const toggleAddon = (
-    index: number,
-    addon: string
-  ) => {
-    const traveler = viajantes[index];
-
-    const exists =
-      traveler.adicionais.includes(addon);
-
-    const adicionais = exists
-      ? traveler.adicionais.filter(
-          (item) => item !== addon
-        )
-      : [...traveler.adicionais, addon];
-
-    updateTraveler(
-      index,
-      'adicionais',
-      adicionais
-    );
-  };
-
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      setLoading(true);
-
-      const payload = {
-        destino,
-        data_inicio: dataInicio,
-        data_fim: dataFim,
-        viajantes,
-      };
-
-      const { data } = await api.post(
-        '/quotes',
-        payload
-      );
-
-      setQuote(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    await fetchQuote({
+      destino,
+      data_inicio: dataInicio,
+      data_fim: dataFim,
+      viajantes,
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Nova Cotação</h2>
+    <div className="container">
+      <form onSubmit={handleSubmit} className="form">
 
-      <div>
-        <label>Destino</label>
+        {/* HEADER */}
+        <div className="card">
+          <h1>🧳 Cotação Seguro Viagem</h1>
+          <p>Preencha os dados para calcular sua cotação</p>
+        </div>
 
-        <select
-          value={destino}
-          onChange={(e) =>
-            setDestino(e.target.value)
-          }
-        >
-          <option value="NACIONAL">
-            Nacional
-          </option>
+        {/* DADOS DA VIAGEM */}
+        <div className="card">
+          <h2>Dados da Viagem</h2>
 
-          <option value="AMERICAS">
-            Américas
-          </option>
+          <div className="grid-2">
 
-          <option value="EUROPA">
-            Europa
-          </option>
-        </select>
-      </div>
-
-      <div>
-        <label>Data início</label>
-
-        <input
-          type="date"
-          value={dataInicio}
-          onChange={(e) =>
-            setDataInicio(e.target.value)
-          }
-        />
-      </div>
-
-      <div>
-        <label>Data fim</label>
-
-        <input
-          type="date"
-          value={dataFim}
-          onChange={(e) =>
-            setDataFim(e.target.value)
-          }
-        />
-      </div>
-
-      <hr />
-
-      <h3>Viajantes</h3>
-
-      {viajantes.map((viajante, index) => (
-        <div
-          key={index}
-          style={{
-            border: '1px solid #ccc',
-            padding: 10,
-            marginBottom: 10,
-          }}
-        >
-          <input
-            placeholder="Nome"
-            value={viajante.nome}
-            onChange={(e) =>
-              updateTraveler(
-                index,
-                'nome',
-                e.target.value
-              )
-            }
-          />
-
-          <br />
-
-          <input
-            type="date"
-            value={
-              viajante.data_nascimento
-            }
-            onChange={(e) =>
-              updateTraveler(
-                index,
-                'data_nascimento',
-                e.target.value
-              )
-            }
-          />
-
-          <div>
             <label>
-              <input
-                type="checkbox"
-                checked={viajante.adicionais.includes(
-                  'BAGAGEM'
-                )}
-                onChange={() =>
-                  toggleAddon(
-                    index,
-                    'BAGAGEM'
-                  )
+              Destino
+              <select
+                value={destino}
+                onChange={(e) =>
+                  setDestino(e.target.value as any)
                 }
-              />
-
-              Bagagem
+              >
+                <option value="nacional">Nacional</option>
+                <option value="americas">Américas</option>
+                <option value="europa">Europa</option>
+              </select>
             </label>
 
             <label>
+              Data início
               <input
-                type="checkbox"
-                checked={viajante.adicionais.includes(
-                  'ESPORTES_AVENTURA'
-                )}
-                onChange={() =>
-                  toggleAddon(
-                    index,
-                    'ESPORTES_AVENTURA'
-                  )
+                type="date"
+                value={dataInicio}
+                onChange={(e) =>
+                  setDataInicio(e.target.value)
                 }
               />
-
-              Esportes de aventura
+              {errors.data_inicio && (
+                <span className="error">
+                  {errors.data_inicio[0]}
+                </span>
+              )}
             </label>
+
+            <label>
+              Data fim
+              <input
+                type="date"
+                value={dataFim}
+                onChange={(e) =>
+                  setDataFim(e.target.value)
+                }
+              />
+              {errors.data_fim && (
+                <span className="error">
+                  {errors.data_fim[0]}
+                </span>
+              )}
+            </label>
+
           </div>
+        </div>
 
-          {viajantes.length > 1 && (
+        {/* VIAJANTES */}
+        <div className="card">
+          <h2>Viajantes</h2>
+
+          {viajantes.map((v, i) => (
+            <div key={i} className="card">
+
+              <div className="grid-2">
+
+                <label>
+                  Nome
+                  <input
+                    value={v.nome}
+                    onChange={(e) => {
+                      const copy = [...viajantes];
+                      copy[i].nome = e.target.value;
+                      setViajantes(copy);
+                    }}
+                  />
+                </label>
+
+                <label>
+                  Data nascimento
+                  <input
+                    type="date"
+                    value={v.data_nascimento}
+                    onChange={(e) => {
+                      const copy = [...viajantes];
+                      copy[i].data_nascimento = e.target.value;
+                      setViajantes(copy);
+                    }}
+                  />
+                </label>
+
+              </div>
+
+              {/* ADDONS */}
+              <div className="checkbox-group">
+
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={v.adicionais.includes('bagagem')}
+                    onChange={() => {
+                      const copy = [...viajantes];
+                      const exists = copy[i].adicionais.includes('bagagem');
+
+                      copy[i].adicionais = exists
+                        ? copy[i].adicionais.filter((a) => a !== 'bagagem')
+                        : [...copy[i].adicionais, 'bagagem'];
+
+                      setViajantes(copy);
+                    }}
+                  />
+                  Bagagem
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={v.adicionais.includes('esportes_aventura')}
+                    onChange={() => {
+                      const copy = [...viajantes];
+                      const exists = copy[i].adicionais.includes('esportes_aventura');
+
+                      copy[i].adicionais = exists
+                        ? copy[i].adicionais.filter((a) => a !== 'esportes_aventura')
+                        : [...copy[i].adicionais, 'esportes_aventura'];
+
+                      setViajantes(copy);
+                    }}
+                  />
+                  Esportes aventura
+                </label>
+
+              </div>
+
+              {/* REMOVER */}
+              {viajantes.length > 1 && (
+                <div className="actions">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setViajantes(
+                        viajantes.filter((_, idx) => idx !== i)
+                      )
+                    }
+                  >
+                    Remover viajante
+                  </button>
+                </div>
+              )}
+
+            </div>
+          ))}
+
+          <div className="actions">
             <button
               type="button"
               onClick={() =>
-                removeTraveler(index)
+                setViajantes([
+                  ...viajantes,
+                  {
+                    nome: '',
+                    data_nascimento: '',
+                    adicionais: [],
+                  },
+                ])
               }
             >
-              Remover
+              + Adicionar viajante
             </button>
-          )}
+          </div>
         </div>
-      ))}
 
-      <button
-        type="button"
-        onClick={addTraveler}
-      >
-        Adicionar viajante
-      </button>
+        {/* SUBMIT */}
+        <div className="card">
+          <button type="submit" disabled={loading}>
+            {loading ? 'Calculando...' : 'Calcular Cotação'}
+          </button>
+        </div>
 
-      <br />
-      <br />
-
-      <button type="submit">
-        Calcular cotação
-      </button>
-    </form>
+      </form>
+    </div>
   );
 }
