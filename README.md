@@ -12,7 +12,7 @@
   - Pronto !
   - Agora é só iniciar o projeto com
     ```bash
-  npm run dev
+    npm run dev
     ```
 
 ## Decisões e premissas
