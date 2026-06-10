@@ -4,7 +4,7 @@
   Bom este projeto é o front-end de cotações da root code, para rodar ele é necessário seguir alguns passos:
   - Clonar o repositório
   - Instalar as dependencias
-  - Criar o arquivo .env
+  - Criar o arquivo .env na raiz do seu projeto
   - Colocar o host no qual seu back-end esta hospedado na seguinte variavel: "VITE_BACK_API_URL", exemplo:
   ```bash
   VITE_BACK_API_URL=http://localhost:8000/api
