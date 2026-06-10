@@ -10,6 +10,10 @@
   VITE_BACK_API_URL=http://localhost:8000/api
   ```
   - Pronto !
+  - Agora é só iniciar o projeto com
+    ```bash
+  npm run dev
+    ```
 
 ## Decisões e premissas
   - Eu decidi usar o react por mais praticidade e como nao irei utilizar rotas, acredito ser um pouco mais simples para um single page
