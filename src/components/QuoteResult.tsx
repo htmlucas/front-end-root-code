@@ -5,7 +5,7 @@ export default function QuoteResult() {
   const loading = useQuoteStore((state) => state.loading);
 
   if (loading) return <p>Calculando...</p>;
-  if (!quote) return null;
+  if (!quote?.viajantes) return null;
 
   return (
     <div
@@ -29,7 +29,7 @@ export default function QuoteResult() {
 
       <h3>Viajantes</h3>
 
-      {quote.viajantes.map(
+      {quote.viajantes?.map(
         (traveler, index) => (
           <div
             key={index}

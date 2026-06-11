@@ -123,6 +123,11 @@ export default function TripForm() {
                       setViajantes(copy);
                     }}
                   />
+                  {errors[`viajantes.${i}.nome`]?.[0] && (
+                    <span className="error">
+                      {errors[`viajantes.${i}.nome`][0]}
+                    </span>
+                  )}
                 </label>
 
                 <label>
@@ -136,6 +141,11 @@ export default function TripForm() {
                       setViajantes(copy);
                     }}
                   />
+                  {errors[`viajantes.${i}.data_nascimento`]?.[0] && (
+                    <span className="error">
+                      {errors[`viajantes.${i}.data_nascimento`][0]}
+                    </span>
+                  )}
                 </label>
 
               </div>
